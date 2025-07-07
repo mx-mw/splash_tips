@@ -45,13 +45,15 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime? @map("email_verified")
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
+    id             String    @id @default(cuid())
+    name           String?
+    email          String?   @unique
+    emailVerified  DateTime? @map("email_verified")
+    image          String?
+    accounts       Account[]
+    sessions       Session[]
+    createdOrders  Order[]   @relation("CreatedOrders")
+    acceptedOrders Order[]   @relation("AcceptedOrders")
 
     @@map("users")
 }
@@ -63,4 +65,80 @@ model VerificationToken {
 
     @@unique([identifier, token])
     @@map("verification_tokens")
+}
+
+model Order {
+    id           String   @id @default(cuid())
+    createdBy    User     @relation("CreatedOrders", fields: [createdById], references: [id])
+    createdById  String
+    acceptedBy   User?    @relation("AcceptedOrders", fields: [acceptedById], references: [id])
+    acceptedById String?
+    expiry       DateTime
+
+    market   Market @relation(fields: [marketId], references: [id])
+    marketId String
+
+    price    Float
+    quantity Int   @default(1)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    bet Bet?
+}
+
+model Bet {
+    id      String @id @default(cuid())
+    order   Order  @relation(fields: [orderId], references: [id])
+    orderId String @unique
+
+    price    Float
+    quantity Int   @default(1)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    market   Market  @relation(fields: [marketId], references: [id])
+    marketId String @map("market_id")
+
+    @@map("bets")
+}
+
+model Market {
+    id           String       @id @default(cuid())
+    name         String
+    description  String?
+    assassin     Assassin     @relation(fields: [assassinId], references: [id])
+    marketType   MarketType
+    marketStatus MarketStatus
+    expiry       DateTime
+    assassinId   String
+    bets         Bet[]
+    Order        Order[]
+
+    yesReserve   Int @default(20) @map("yes_reserve")
+    noReserve    Int @default(20) @map("no_reserve")
+    
+
+    @@map("market")
+}
+
+enum MarketStatus {
+    OPEN
+    CLOSED
+}
+
+enum MarketType {
+    SURVIVAL
+    DEATH
+    KILL
+}
+
+model Assassin {
+    id      String   @id @default(cuid())
+    name    String
+    image   String?
+    markets Market[]
+
+    @@map("assassins")
 }

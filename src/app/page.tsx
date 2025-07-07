@@ -7,47 +7,34 @@ import { ArrowRight, LogIn, LogOut } from "lucide-react";
 import Link from "next/link";
 
 export default async function Home() {
-  const session = await auth();
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center">
-      <div className="container flex flex-col items-center justify-center gap-2">
-        <h1 className="text-2xl font-bold">Home</h1>
-        <p className="text-sm text-muted-foreground">Start modifying this page to get started.</p>
-        <div className="flex gap-2">
-          <Link
-            prefetch={false}
-            href="https://github.com/caru-ini/next-authjs-template"
-            passHref
-            target="_blank"
-          >
-            <Button variant="outline" className="gap-2">
-              Check the repository
-              <ArrowRight size={16} />
-            </Button>
-          </Link>
-          {session ? (
-            <SignOutButton className="gap-2">
-              <LogOut size={16} />
-              Sign Out
-            </SignOutButton>
-          ) : (
-            <SignInButton className="gap-2">
-              <LogIn size={16} />
-              Sign In
-            </SignInButton>
-          )}
+    const session = await auth();
+    return (
+        <div className="flex flex-1 flex-col items-center justify-center">
+            <div className="container flex flex-col items-center justify-center gap-2">
+                <h1 className="text-2xl font-bold">Login First</h1>
+                <p className="text-sm text-muted-foreground">Login to start tipping.</p>
+                <div className="flex gap-2">
+                    {session ? (
+                        <>
+                            <Link href="/dash" className="flex items-center gap-2">
+                                <Button variant="outline" size="sm">
+                                    <ArrowRight size={16} />
+                                    Go to Dashboard
+                                </Button>
+                            </Link>
+                            <SignOutButton className="gap-2">
+                                <LogOut size={16} />
+                                Sign Out
+                            </SignOutButton>
+                        </>
+                    ) : (
+                        <SignInButton className="gap-2">
+                            <LogIn size={16} />
+                            Sign In
+                        </SignInButton>
+                    )}
+                </div>
+            </div>
         </div>
-        <div className="flex max-w-xl flex-col">
-          <p className="max-w-sm rounded-t-md bg-secondary/50 p-2 font-bold">Session</p>
-          <pre className="min-w-[300px] overflow-x-auto rounded-md rounded-t-none bg-secondary p-4 text-sm">
-            {session ? JSON.stringify(session, null, 2) : "No session"}
-          </pre>
-        </div>
-        <div className="flex flex-col items-center justify-center gap-2 rounded-md bg-secondary/50 p-4">
-          <p className="font-bold">User Menu</p>
-          <UserMenu />
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
